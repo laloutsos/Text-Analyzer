@@ -3,14 +3,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("\nTest String Trie\n");
+        System.out.println("Welcome to Text Analyzer, insert a file name!");
 
         StringTrie T = new StringTrie();
+        Scanner scan = new Scanner(System.in);
+        String input = scan.next();
+
+
 
         try {
-            File file = new File("DickensB.txt");
+            File file = new File(input);
             Scanner scanner = new Scanner(file);
 
             long startTime = System.currentTimeMillis();
@@ -21,7 +26,7 @@ public class Main {
                 }
             }
             scanner.close();
-
+            
             System.out.println(T.size() + " words");
             long endTime = System.currentTimeMillis();
             System.out.println("construction time = " + (endTime - startTime));
