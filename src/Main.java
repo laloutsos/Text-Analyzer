@@ -2,6 +2,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Main {
     private static int searchCount = 0;
@@ -13,14 +15,16 @@ public class Main {
 
         Scanner scan = new Scanner(System.in);
 
-        // Ζήτα username
+
         System.out.print("Enter your username: ");
         String username = scan.nextLine().trim();
         String logFileName = username + "_log.txt";
 
-        // Ζήτα το όνομα αρχείου κειμένου
+
         System.out.println("Please enter the name of the text file you want to analyze:");
         String input = scan.nextLine();
+        System.out.println("File processing...");
+
 
         StringTrie T = new StringTrie();
 
@@ -46,7 +50,8 @@ public class Main {
 
             // Δημιουργούμε αρχείο log για αποτελέσματα με βάση το username
             BufferedWriter logWriter = new BufferedWriter(new FileWriter(logFileName, true)); // append mode
-            logWriter.write("=== New session for user: " + username + " ===\n");
+            logWriter.write(getTimestamp());
+            logWriter.write( "\n=== New session for user: " + username + " ===\n");
 
             boolean running = true;
             while (running) {
@@ -157,6 +162,9 @@ public class Main {
                 "0: Exit.");
 
         System.out.println(); // extra line for spacing
+    }
+    private static String getTimestamp() {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + " -";
     }
 
     private static int getChoice(Scanner scan) {
