@@ -7,19 +7,36 @@ import java.util.Date;
 
 public class Main {
     private static int searchCount = 0;
+    public static final String RESET = "\u001B[0m";
+    public static final String CYAN = "\u001B[36m";
 
     public static void main(String[] args) {
+        System.out.print(CYAN);
         System.out.println("Welcome to the Text Analyzer!");
         System.out.println("This program analyzes words from a text file using a Trie (prefix tree) data structure.");
         System.out.println("The Trie allows efficient insertion, search, prefix queries, pattern matching, and frequency analysis.\n");
+        System.out.print(RESET);
 
         Scanner scan = new Scanner(System.in);
 
 
         System.out.print("Enter your username: ");
         String username = scan.nextLine().trim();
-        String logFileName = username + "_log.txt";
+        System.out.print("Do you want to enable logging to a file? (yes/no): ");
+        boolean loggingEnabled = scan.nextLine().trim().equalsIgnoreCase("yes");
 
+        BufferedWriter logWriter = null;
+        if (loggingEnabled) {
+            String logFileName = username + "_log.txt";
+            try {
+                logWriter = new BufferedWriter(new FileWriter(logFileName, true)); // append mode
+                logWriter.write(getTimestamp());
+                logWriter.write("\n=== New session for user: " + username + " ===\n");
+            } catch (IOException e) {
+                System.out.println("Error initializing log file: " + e.getMessage());
+                loggingEnabled = false;
+            }
+        }
 
         System.out.println("Please enter the name of the text file you want to analyze:");
         String input = scan.nextLine();
@@ -48,10 +65,7 @@ public class Main {
                     (double) (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024);
             System.out.println();
 
-            // Δημιουργούμε αρχείο log για αποτελέσματα με βάση το username
-            BufferedWriter logWriter = new BufferedWriter(new FileWriter(logFileName, true)); // append mode
-            logWriter.write(getTimestamp());
-            logWriter.write( "\n=== New session for user: " + username + " ===\n");
+
 
             boolean running = true;
             while (running) {
@@ -64,7 +78,8 @@ public class Main {
                         String word = scan.nextLine().toLowerCase();
                         int exists = T.contains(word);
                         System.out.println("Number of appearances of '" + word + "':" + exists);
-                        logWriter.write("Check word '" + word + "': " + exists + "\n");
+                        if (loggingEnabled && logWriter != null)
+                            logWriter.write("Check word '" + word + "': " + exists + "\n");
                         searchCount++;
                         break;
 
@@ -73,7 +88,8 @@ public class Main {
                         String prefix = scan.nextLine().toLowerCase();
                         int count = T.countWordsWithPrefix(prefix);
                         System.out.println("Number of words with prefix '" + prefix + "': " + count);
-                        logWriter.write("Count words with prefix '" + prefix + "': " + count + "\n");
+                        if (loggingEnabled && logWriter != null)
+                            logWriter.write("Count words with prefix '" + prefix + "': " + count + "\n");
                         searchCount++;
                         break;
 
@@ -82,7 +98,8 @@ public class Main {
                         String lpWord = scan.nextLine();
                         String longestPrefix = T.longestPrefixOf(lpWord);
                         System.out.println("Longest prefix of '" + lpWord + "': " + longestPrefix);
-                        logWriter.write("Longest prefix of '" + lpWord + "': " + longestPrefix + "\n");
+                        if (loggingEnabled && logWriter != null)
+                            logWriter.write("Longest prefix of '" + lpWord + "': " + longestPrefix + "\n");
                         searchCount++;
                         break;
 
@@ -92,6 +109,9 @@ public class Main {
                         System.out.println("\nwords with prefix " + s + " : ");
                         T.printWords(T.wordsWithPrefix(s));
                         System.out.println("\nnumber of words with prefix " + s + " = " + T.countWordsWithPrefix(s));
+                        if (loggingEnabled && logWriter != null) {
+                            logWriter.write("Printed words with prefix '" + s + "' (Count: " + T.countWordsWithPrefix(s) + ")\n");
+                        }
                         searchCount++;
                         break;
 
@@ -99,7 +119,8 @@ public class Main {
                         System.out.print("Enter pattern (use ? as wildcard): ");
                         String pattern = scan.nextLine();
                         System.out.println("Words matching pattern '" + pattern + "':");
-                        logWriter.write("Words matching pattern '" + pattern + "':\n");
+                        if (loggingEnabled && logWriter != null)
+                            logWriter.write("Words matching pattern '" + pattern + "':\n");
                         T.printWords(T.wordsThatMatch(pattern));
                         searchCount++;
                         break;
@@ -108,10 +129,12 @@ public class Main {
                         Item mostFreq = T.mostFrequent();
                         if (mostFreq != null) {
                             System.out.println("Most frequent word: '" + mostFreq.getS() + "' with count: " + mostFreq.getCount());
-                            logWriter.write("Most frequent word: '" + mostFreq.getS() + "' with count: " + mostFreq.getCount() + "\n");
+                            if (loggingEnabled && logWriter != null)
+                                logWriter.write("Most frequent word: '" + mostFreq.getS() + "' with count: " + mostFreq.getCount() + "\n");
                         } else {
                             System.out.println("No words found.");
-                            logWriter.write("Most frequent word: None\n");
+                            if (loggingEnabled && logWriter != null)
+                                logWriter.write("Most frequent word: None\n");
                         }
                         break;
 
@@ -120,7 +143,8 @@ public class Main {
                         String delWord = scan.nextLine().toLowerCase();
                         T.delete(delWord);
                         System.out.println("Deleted word '" + delWord + "' (if it existed).");
-                        logWriter.write("Deleted word '" + delWord + "'\n");
+                        if (loggingEnabled && logWriter != null)
+                            logWriter.write("Deleted word '" + delWord + "'\n");
                         break;
 
                     case 0:
@@ -132,13 +156,16 @@ public class Main {
                         System.out.println("Invalid choice. Try again.");
                         break;
                 }
-                logWriter.flush();
+                if (loggingEnabled && logWriter != null)
+                    logWriter.flush();
                 System.out.println();
             }
 
-            logWriter.write("Total searches performed: " + searchCount + "\n");
-            logWriter.write("=== End of session ===\n\n");
-            logWriter.close();
+            if (loggingEnabled && logWriter != null) {
+                logWriter.write("Total searches performed: " + searchCount + "\n");
+                logWriter.write("=== End of session ===\n\n");
+                logWriter.close();
+            }
 
         } catch (FileNotFoundException e) {
             System.out.println("File not found: " + input);
