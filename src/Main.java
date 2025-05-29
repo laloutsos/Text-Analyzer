@@ -75,7 +75,7 @@ public class Main {
                 switch (choice) {
                     case 1:
                         System.out.print("Enter word to check if it exists: ");
-                        String word = scan.nextLine().toLowerCase();
+                        String word = scan.nextLine();
                         int exists = T.contains(word);
                         System.out.println("Number of appearances of '" + word + "':" + exists);
                         if (loggingEnabled && logWriter != null)
@@ -85,7 +85,7 @@ public class Main {
 
                     case 2:
                         System.out.print("Enter prefix to count words: ");
-                        String prefix = scan.nextLine().toLowerCase();
+                        String prefix = scan.nextLine();
                         int count = T.countWordsWithPrefix(prefix);
                         System.out.println("Number of words with prefix '" + prefix + "': " + count);
                         if (loggingEnabled && logWriter != null)
@@ -140,7 +140,7 @@ public class Main {
 
                     case 7:
                         System.out.print("Enter word to delete: ");
-                        String delWord = scan.nextLine().toLowerCase();
+                        String delWord = scan.nextLine();
                         T.delete(delWord);
                         System.out.println("Deleted word '" + delWord + "' (if it existed).");
                         if (loggingEnabled && logWriter != null)
